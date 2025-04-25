@@ -11,6 +11,5 @@ export class app_error extends Error{
     
 
 export const error_handler = (err:app_error,req:Request,res:Response,next:NextFunction)=>{
-    console.log(err.stack);
     res.status(err.statusCode || 500).json({success:false,message:err.message || "internal server error"})
 }

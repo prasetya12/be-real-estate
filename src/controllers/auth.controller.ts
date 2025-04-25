@@ -25,7 +25,6 @@ export const registerController = async (req: Request<{}, {}, body_params>, res:
             .eq('email', email)
             .maybeSingle();
 
-        console.log(emailCheckError)
 
         if (emailCheckError) {
             res.status(500).json({ error: 'Error checking existing users' });
@@ -44,7 +43,6 @@ export const registerController = async (req: Request<{}, {}, body_params>, res:
 
         });
 
-        console.log(authError)
         if (authError) {
             res.status(500).json({ error: 'Error creating user in Supabase Auth.' });
         }
@@ -66,7 +64,6 @@ export const registerController = async (req: Request<{}, {}, body_params>, res:
                 { onConflict: 'id' }
             );
 
-        console.log(profileError, 'a')
 
         if (profileError) {
             res.status(500).json({ error: 'Error creating user profile.' });
