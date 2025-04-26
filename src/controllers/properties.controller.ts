@@ -10,7 +10,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 export const createProperties = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { title, description, price, address, latitude, longitude } = req.body
+    const { title, description, price, address, latitude, longitude,property_type,status,bedrooms,bathrooms,square_feet } = req.body
     let imageUrl: string | null = null;
     const user_id: string = (req as AuthenticatedRequest).user?.id ||'';
 
@@ -23,13 +23,17 @@ export const createProperties = async (req: Request, res: Response, next: NextFu
                 .from('property-images') // Supabase bucket name
                 .upload(filePath, req.file.buffer, { contentType: req.file.mimetype });
 
-            if (uploadError) {
+            
+
+
+            if (uploadError && uploadError!==null) {
                 res.status(500).json({ error: 'Failed to upload image' });
             }
 
             // Get the public URL of the uploaded image
             imageUrl = supabase.storage.from('property-images').getPublicUrl(filePath).data.publicUrl;
         } catch (error) {
+            console.log(error)
             res.status(500).json({ error: 'Failed to upload image' });
         }
     }
@@ -38,10 +42,8 @@ export const createProperties = async (req: Request, res: Response, next: NextFu
         const { data: propertyData, error: propertyError } = await supabase
             .from('properties')
             .insert({
-                title, description, price, address, latitude, longitude, user_id
+                title, description, price, address, latitude, longitude, user_id,property_type,status,bedrooms,bathrooms,square_feet
             }).select().single()
-
-
 
 
         if (imageUrl) {
@@ -52,7 +54,6 @@ export const createProperties = async (req: Request, res: Response, next: NextFu
                     url: imageUrl,
                     is_primary: true,
                 }]);
-
             if (imageError) {
                 res.status(500).json({ error: 'Failed to associate image with property' });
             }
@@ -71,10 +72,9 @@ export const getProperties = async (req: Request, res: Response, next: NextFunct
         const user_id: string = (req as AuthenticatedRequest).user?.id ||'';
 
 
-        // Only return properties that belong to the authenticated user
         const { data, error } = await supabase
             .from('properties')
-            .select('*')
+            .select('id,title,description,price,address,bedrooms,bathrooms,square_feet,property_type,status,latitude,longitude,property_images(id,property_id,url)')
             .eq('user_id', user_id);
 
         if (error) {
