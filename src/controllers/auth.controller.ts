@@ -9,7 +9,6 @@ interface body_params {
 }
 export const registerController = async (req: Request<{}, {}, body_params>, res: Response, next: NextFunction): Promise<void> => {
     const { fullname, email, password, confirm_password } = req.body;
-    // Validate input
     if (!fullname || !email || !password || !confirm_password) {
         res.status(400).json({ error: 'Please provide fullname, email, password, and confirm_password.' });
     }
@@ -18,7 +17,6 @@ export const registerController = async (req: Request<{}, {}, body_params>, res:
         res.status(400).json({ error: 'Passwords do not match.' });
     }
     try {
-        // Check if the email already exists
         const { data: existingUser, error: emailCheckError } = await supabase
             .from('profiles')
             .select('email')
@@ -34,7 +32,6 @@ export const registerController = async (req: Request<{}, {}, body_params>, res:
             res.status(400).json({ error: 'Email is already registered.' });
         }
 
-        // Hash the password
 
         const { data: userData, error: authError } = await supabase.auth.admin.createUser({
             email,
